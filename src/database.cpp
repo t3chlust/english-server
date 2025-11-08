@@ -24,7 +24,7 @@ Database::Database() {
 }
 
 void Database::addWord(uint32_t chat_id, sql::SQLString word,
-                       sql::SQLString translation, uint32_t submitted) {
+                       sql::SQLString translation, int submitted) {
     std::shared_ptr<sql::PreparedStatement> stmnt(
         conn->prepareStatement("INSERT INTO test.Word VALUES (?, ?, ?, ?)"));
     stmnt->setUInt(1, chat_id);
@@ -64,11 +64,13 @@ void Database::deleteWord(uint32_t chat_id, sql::SQLString word) {
     stmnt->executeUpdate();
 }
 
-bool Database::existsWord(sql::SQLString word) {
+bool Database::existsWord(uint32_t chat_id, sql::SQLString word) {
     std::shared_ptr<sql::PreparedStatement> stmnt(
         conn->prepareStatement("SELECT EXISTS (SELECT * FROM test.Word "
-                               "WHERE word = ?) as word_exists"));
-    stmnt->setString(1, word);
+                               "WHERE chat_id = ? AND word = ?) as word_exists"));
+    stmnt->setUInt(1, chat_id);
+    stmnt->setString(2, word);
+
     std::unique_ptr<sql::ResultSet> res(stmnt->executeQuery());
     while (res->next()) {
         return res->getBoolean("word_exists");
@@ -78,6 +80,7 @@ bool Database::existsWord(sql::SQLString word) {
 
 std::vector<Word> Database::getActualWords() {
     std::shared_ptr<sql::Statement> stmnt(conn->createStatement());
+    // todo: fix query
     std::unique_ptr<sql::ResultSet> res(
         stmnt->executeQuery("SELECT * FROM english.Word"));
     std::vector<Word> result;

@@ -14,7 +14,7 @@ class Database {
     Database();
 
     void addWord(uint32_t chat_id, sql::SQLString word,
-                 sql::SQLString translation, uint32_t to_delete);
+                 sql::SQLString translation, int to_delete);
 
     int getWordDeletionCount(uint32_t chat_id, sql::SQLString word);
 
@@ -22,7 +22,7 @@ class Database {
 
     void deleteWord(uint32_t chat_id, sql::SQLString word);
 
-    bool existsWord(sql::SQLString word);
+    bool existsWord(uint32_t chat_id, sql::SQLString word);
 
     std::vector<Word> getActualWords();
 };
